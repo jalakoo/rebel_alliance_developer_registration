@@ -19,8 +19,12 @@ driver = GraphDatabase.driver(host, auth=basic_auth(user, password))
 def execute_query(query, params={}):
     print(f'host: {host}, user: {user}, password: {password}')
     # Using experimental API
-    with GraphDatabase.driver(host, auth=basic_auth(user, password)) as driver:
-        records, summary, keys = driver.execute_query(query, params)
-        logging.info(f"keys: {keys}, summary: {summary}, records: {records}")
-        return records
+    try:
+        with GraphDatabase.driver(host, auth=basic_auth(user, password)) as driver:
+            records, summary, keys = driver.execute_query(query, params)
+            logging.info(f"keys: {keys}, summary: {summary}, records: {records}")
+            return records
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
 
