@@ -14,6 +14,11 @@ def friends_list():
     friend_names = [f['name'] for f in friends]
     return friend_names
 
+# @st.cache_data
+# def friends_list():
+#     return list_from_csv("https://gist.githubusercontent.com/jalakoo/ae51e1c60d12431154257b69b10ed5a0/raw/da1476950306e432275c530d31c3a54edb919727/star_wars_characters_filtered.csv", "name")
+
+
 @st.cache_data
 def systems():
     systems = STAR_WARS_SYSTEMS
@@ -29,8 +34,10 @@ def add_registrant(
     email: str,
     skills: list,
     friends: list,
-    home_system: str
+    home_system: str,
+    auto_create: bool = False
 ) -> bool:
+    # This function works but is clunky. It should be refactored to use a single query or a bulk import option using APOC
     print(f'\nadd_registrant: event: {event}, call_sign: {call_sign}, email: {email}, skills: {skills}, friends: {friends}')
     # Purge any pre-existing data
 
@@ -53,26 +60,28 @@ def add_registrant(
     print(f'New person result: {result}')
 
     # Add home system
-    # new_system_query = """
-    #     MERGE (s:System {name: $system})
-    #     """
-    # new_system_params = {
-    #     'system': home_system
-    # }
-    # s_result = execute_query(new_system_query, new_system_params)
-    # print(f'New system result: {s_result}')
+    if auto_create:
+        new_system_query = """
+            MERGE (s:System {name: $system})
+            """
+        new_system_params = {
+            'system': home_system
+        }
+        s_result = execute_query(new_system_query, new_system_params)
+        print(f'New system result: {s_result}')
 
     # Add skills
     for skill in skills:
         # Add skill as topic, if not already present
-        # new_skill_query = """
-        #     MERGE (s:Topic {name: $skill})
-        #     """
-        # new_skill_params = {
-        #     'skill': skill
-        # }
-        # s_result = execute_query(new_skill_query, new_skill_params)
-        # print(f'New skill result: {s_result}')
+        if auto_create:
+            new_skill_query = """
+                MERGE (s:Topic {name: $skill})
+                """
+            new_skill_params = {
+                'skill': skill
+            }
+            s_result = execute_query(new_skill_query, new_skill_params)
+            print(f'New skill result: {s_result}')
 
         # Connect skills/topics to person
         connect_skill_query = """    
@@ -90,18 +99,19 @@ def add_registrant(
         # Add associates
         for friend in friends:
             # Add friend as person, if not already present
-            new_friend_query = """
-                MERGE (f:Person {name: $friend})
-                """
-            new_friend_params = {
-                'friend': friend
-            }
-            f_result = execute_query(new_friend_query, new_friend_params)
-            print(f'New friend result: {f_result}')
+            if auto_create:
+                new_friend_query = """
+                    MERGE (f:Character {name: $friend})
+                    """
+                new_friend_params = {
+                    'friend': friend
+                }
+                f_result = execute_query(new_friend_query, new_friend_params)
+                print(f'New friend result: {f_result}')
 
             # Connect friends to person
             connect_friend_query = """    
-                MATCH (a:Person {email: $email}),(f:Person {name: $friend})
+                MATCH (a:Person {email: $email}),(f:Character {name: $friend})
                 MERGE (a)-[r:KNOWS]->(f)
                 RETURN a,r,f
             """
