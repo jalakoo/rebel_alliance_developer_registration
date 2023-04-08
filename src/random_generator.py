@@ -6,6 +6,7 @@ from num2words import num2words
 import random
 from constants import STAR_WARS_CHARACTERS, STAR_WARS_SYSTEMS
 from registration import programming_languages_list, add_registrant
+import streamlit as st
 
 TEST_EMAIL = "test@test.com"
 TEST_CALL_SIGN_PREFIX = "Grey"
@@ -51,7 +52,7 @@ def generate_random_test_developers(
         home_system = generate_random_home_system()
         developer = {
             "call_sign": call_sign,
-            "email": TEST_EMAIL,
+            "email": f"{idx}@test.com",
             "skills": skills,
             "friends": friends,
             "home_system": home_system
@@ -59,21 +60,66 @@ def generate_random_test_developers(
         developers.append(developer)
     return developers
 
-if __name__ == '__main__':
+def generate_devs() -> list[dict]:
+    """Generate a random set of developers"""
     devs = generate_random_test_developers(
-        max_devs=TEST_DEVELOPERS,
-        max_skills=3,
-        max_friends=2
+        max_devs=st.session_state["dev_count"],
+        max_skills=st.session_state["max_skills"],
+        max_friends=max_friends
     )
-    print(f'devs: {devs}')
-    for dev in devs:
-        add_registrant(
-            event="Rebel Developer Registration Test System",
-            call_sign=dev["call_sign"],
-            email=dev["email"],
-            skills=dev["skills"],
-            friends=dev["friends"],
-            home_system=dev["home_system"],
-            auto_create=True
-        )
+    st.session_state['devs'] = devs
+
+def register_devs():
+    if st.session_state['devs']:
+        devs = st.session_state['devs']
+        for dev in devs:
+            add_registrant(
+                event="Rebel Developer Registration Test",
+                call_sign=dev['call_sign'],
+                email=dev['email'],
+                skills=dev['skills'],
+                friends=dev['friends'],
+                home_system=dev['home_system']
+            )
+# Streamlit UI
+# For interactive running instead
+st.title("Rebel Developer Registration Test System")
+
+dev_count = st.slider("Number of Developers", 1, 100, 12)
+max_skills = st.slider("Max Skills per Developer", 1, 10, 5)
+max_friends = st.slider("Max Associatese per Developer", 1, 10, 5)
+
+st.session_state["dev_count"] = dev_count
+st.session_state["max_skills"] = max_skills
+st.session_state["max_friends"] = max_friends
+
+c1, c2 = st.columns(2)
+with c1:
+    st.button("Generate Test Data", on_click=generate_devs)
+with c2:
+    st.button("Upload Test Data", on_click=register_devs)
+
+if st.session_state.get('devs'):
+    devs = st.session_state['devs']
+    st.json(devs)
+
+
+# Main for direct script running
+# if __name__ == '__main__':
+#     devs = generate_random_test_developers(
+#         max_devs=TEST_DEVELOPERS,
+#         max_skills=3,
+#         max_friends=2
+#     )
+#     print(f'devs: {devs}')
+#     for dev in devs:
+#         add_registrant(
+#             event="Rebel Developer Registration Test System",
+#             call_sign=dev["call_sign"],
+#             email=dev["email"],
+#             skills=dev["skills"],
+#             friends=dev["friends"],
+#             home_system=dev["home_system"],
+#             auto_create=True
+#         )
     

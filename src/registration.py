@@ -28,6 +28,14 @@ def systems():
     #     systems = csv_file.reader(csv_file, delimiter=',')
     #     return list(systems)
 
+def setup_contraints():
+    add_constraints_query = """
+        CREATE CONSTRAINT ON (n:Person)
+        ASSERT n.email IS UNIQUE
+    """
+    result = execute_query(add_constraints_query)
+    return result
+
 def add_registrant(
     event: str,
     call_sign: str,
@@ -57,7 +65,7 @@ def add_registrant(
     }
     # # Run query
     result = execute_query(new_person_query, new_person_parameters)
-    print(f'New person result: {result}')
+    # print(f'New person result: {result}')
 
     # Add home system
     if auto_create:
@@ -68,7 +76,7 @@ def add_registrant(
             'system': home_system
         }
         s_result = execute_query(new_system_query, new_system_params)
-        print(f'New system result: {s_result}')
+        # print(f'New system result: {s_result}')
 
     # Add skills
     for skill in skills:
@@ -81,7 +89,7 @@ def add_registrant(
                 'skill': skill
             }
             s_result = execute_query(new_skill_query, new_skill_params)
-            print(f'New skill result: {s_result}')
+            # print(f'New skill result: {s_result}')
 
         # Connect skills/topics to person
         connect_skill_query = """    
@@ -94,7 +102,7 @@ def add_registrant(
             'topic': skill
         }
         c_result = execute_query(connect_skill_query, connect_skill_parameters)
-        print(f'Connect skill result: {c_result}')
+        # print(f'Connect skill result: {c_result}')
 
         # Add associates
         for friend in friends:
@@ -107,7 +115,7 @@ def add_registrant(
                     'friend': friend
                 }
                 f_result = execute_query(new_friend_query, new_friend_params)
-                print(f'New friend result: {f_result}')
+                # print(f'New friend result: {f_result}')
 
             # Connect friends to person
             connect_friend_query = """    
@@ -120,7 +128,7 @@ def add_registrant(
                 'friend': friend
             }
             c_result = execute_query(connect_friend_query, connect_friend_parameters)
-            print(f'Connect friend result: {c_result}')
+            # print(f'Connect friend result: {c_result}')
 
     # TODO: Error handling
     # TODO: Proper Confirmation
