@@ -20,6 +20,7 @@ FAMOUS_STAR_WARS_SYSTEMS =[
     "Endor",
     "Geonosis",
     "Hoth",
+    "Jakku"
     "Kamino",
     "Kashyyyk",
     "Mandalore"
