@@ -12,25 +12,26 @@ TOP_PROGRAMMING_LANGUAGES = [
     "SQL"
 ]
 
-FAMOUS_STAR_WARS_SYSTEMS =[
-    "Alderaan",
-    "Bespin",
-    "Coruscant",
-    "Dagobah",
-    "Endor",
-    "Geonosis",
-    "Hoth",
-    "Jakku"
-    "Kamino",
-    "Kashyyyk",
-    "Mandalore"
-    "Mon Calamari",
-    "Mustafar",
-    "Naboo",
-    "Tatooine",
-    "Utapau",
-    "Yavin"
-]
+# FAMOUS_STAR_WARS_SYSTEMS =[
+#     "Alderaan",
+#     "Bespin",
+#     "Corellia",
+#     "Coruscant",
+#     "Dagobah",
+#     "Endor",
+#     "Geonosis",
+#     "Hoth",
+#     "Jakku",
+#     "Kamino",
+#     "Kashyyyk",
+#     "Mandalore",
+#     "Mon Calamari",
+#     "Mustafar",
+#     "Naboo",
+#     "Tatooine",
+#     "Utapau",
+#     "Yavin"
+# ]
 
 STAR_WARS_CHARACTERS = [
   {

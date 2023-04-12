@@ -4,8 +4,8 @@
 
 from num2words import num2words
 import random
-from constants import STAR_WARS_CHARACTERS, TOP_PROGRAMMING_LANGUAGES, FAMOUS_STAR_WARS_SYSTEMS
-from registration import add_registrant
+from constants import STAR_WARS_CHARACTERS, TOP_PROGRAMMING_LANGUAGES
+from registration import add_registrant, systems
 import streamlit as st
 
 
@@ -42,7 +42,7 @@ def generate_random_friends(max) -> list[str]:
 
 def generate_random_home_system() -> str:
     """Generate a random home system"""
-    random_system = random.choice(FAMOUS_STAR_WARS_SYSTEMS)
+    random_system = random.choice(systems())
     return random_system
 
 def generate_random_test_developers(

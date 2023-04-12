@@ -1,6 +1,6 @@
 import streamlit as st
 from neo4j_driver import execute_query
-from constants import STAR_WARS_CHARACTERS, FAMOUS_STAR_WARS_SYSTEMS
+from constants import STAR_WARS_CHARACTERS
 from datetime import datetime
 from utils import list_from_csv
 from cymple import QueryBuilder
@@ -23,7 +23,7 @@ def friends_list():
 
 @st.cache_data
 def systems():
-    return FAMOUS_STAR_WARS_SYSTEMS
+    return list_from_csv("https://gist.githubusercontent.com/jalakoo/780b2f20bbe67ec97583df768f484912/raw/726aa15c4c3c960003522331c33b52ea7416cfb5/famous_star_wars_systems.csv", "name")
 
     # From local constants if added
     # systems = STAR_WARS_SYSTEMS
