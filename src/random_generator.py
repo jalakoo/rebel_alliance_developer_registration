@@ -4,13 +4,14 @@
 
 from num2words import num2words
 import random
-from constants import STAR_WARS_CHARACTERS, STAR_WARS_SYSTEMS
-from registration import programming_languages_list, add_registrant
+from constants import STAR_WARS_CHARACTERS, TOP_PROGRAMMING_LANGUAGES, FAMOUS_STAR_WARS_SYSTEMS
+from registration import add_registrant
 import streamlit as st
 
-TEST_EMAIL = "test@test.com"
+
+# TEST_EMAIL = "test@test.com"
 TEST_CALL_SIGN_PREFIX = "Grey"
-TEST_DEVELOPERS = 12
+# TEST_DEVELOPERS = 12
 
 def generate_random_number_str(num)-> str:
     return num2words(num, to="cardinal").title()
@@ -18,12 +19,18 @@ def generate_random_number_str(num)-> str:
 def generate_random_call_sign(idx) -> str:
     """Generate a random call sign"""
     return f"{TEST_CALL_SIGN_PREFIX} {generate_random_number_str(idx+1)}"
-
+    
 def generate_random_skills(max) -> list[str]:
     """Generate a random skill set"""
+
     num_skills = random.randint(1, max)
-    languages = programming_languages_list()
-    random_skills = random.sample(languages, num_skills)
+
+    # If wanting to use full programming lanugage list
+    # languages = programming_languages_list()
+    # random_skills = random.sample(languages, num_skills)
+    # return random_skills
+
+    random_skills = random.sample(TOP_PROGRAMMING_LANGUAGES, num_skills)
     return random_skills
 
 def generate_random_friends(max) -> list[str]:
@@ -35,8 +42,8 @@ def generate_random_friends(max) -> list[str]:
 
 def generate_random_home_system() -> str:
     """Generate a random home system"""
-    random_system = random.choice(STAR_WARS_SYSTEMS)
-    return random_system["Planet"]
+    random_system = random.choice(FAMOUS_STAR_WARS_SYSTEMS)
+    return random_system
 
 def generate_random_test_developers(
         max_devs: int = 12,
@@ -70,7 +77,8 @@ def generate_devs() -> list[dict]:
     st.session_state['devs'] = devs
 
 def register_devs():
-    if st.session_state['devs']:
+    if st.session_state.get('devs'):
+        st.info("Registering devs...")
         devs = st.session_state['devs']
         for dev in devs:
             add_registrant(
@@ -81,23 +89,53 @@ def register_devs():
                 friends=dev['friends'],
                 home_system=dev['home_system']
             )
+        # TODO: Actual verification
+        st.success("Devs registered")
+    else:
+        st.error("No devs to register")
+
+@st.cache_data
+def devs_file():
+    import csv
+    from io import StringIO 
+
+    if st.session_state.get('devs'):
+        devs = st.session_state['devs']
+        if not devs:
+            print(f'No devs to write to file')
+            return None
+        print(f'Writing {len(devs)} devs to file')
+        data = StringIO()
+        writer = csv.DictWriter(data, fieldnames=["call_sign", "email", "skills", "friends", "home_system"])
+        writer.writeheader()
+        for row in devs:
+            writer.writerow(row)
+        return data.getValue()
+    else:
+        print(f'No devs in session state to write to file')
+        return None
+    
 # Streamlit UI
 # For interactive running instead
 st.title("Rebel Developer Registration Test System")
 
 dev_count = st.slider("Number of Developers", 1, 100, 12)
-max_skills = st.slider("Max Skills per Developer", 1, 10, 5)
-max_friends = st.slider("Max Associatese per Developer", 1, 10, 5)
+max_skills = st.slider("Max Skills per Developer", 1, 20, 5)
+max_friends = st.slider("Max Associatese per Developer", 1, 20, 5)
 
 st.session_state["dev_count"] = dev_count
 st.session_state["max_skills"] = max_skills
 st.session_state["max_friends"] = max_friends
 
-c1, c2 = st.columns(2)
+c1, c2, c3 = st.columns(3)
 with c1:
     st.button("Generate Test Data", on_click=generate_devs)
 with c2:
     st.button("Upload Test Data", on_click=register_devs)
+with c3:
+    file = devs_file()
+    if file:
+        st.download_button(label="Download .csv", data=file, file_name=f"rebel_devs.csv", mime="application/zip")
 
 if st.session_state.get('devs'):
     devs = st.session_state['devs']

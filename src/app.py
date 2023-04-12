@@ -35,10 +35,11 @@ with st.form(key='submission_form', clear_on_submit=True):
     with f1:
         friends = st.multiselect("Who do you associate with?", friends_list())
     with f2:
-        home = st.selectbox("Where's your homeworld?", systems(), index=35)
+        home = st.selectbox("Where's your homeworld?", systems())
 
     submit = st.form_submit_button('Register')
     if submit:
+        st.info("Registration in progress...")
         success = add_registrant(
             event=EVENT_NAME, 
             call_sign=call_sign, 

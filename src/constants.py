@@ -1,3 +1,36 @@
+TOP_PROGRAMMING_LANGUAGES = [
+    "Java",
+    "C",
+    "C#",
+    "JavaScript",
+    "Python",
+    "Go",
+    "Ruby",
+    "Assembly",
+    "TypeScript",
+    "Dart",
+    "SQL"
+]
+
+FAMOUS_STAR_WARS_SYSTEMS =[
+    "Alderaan",
+    "Bespin",
+    "Coruscant",
+    "Dagobah",
+    "Endor",
+    "Geonosis",
+    "Hoth",
+    "Kamino",
+    "Kashyyyk",
+    "Mandalore"
+    "Mon Calamari",
+    "Mustafar",
+    "Naboo",
+    "Tatooine",
+    "Utapau",
+    "Yavin"
+]
+
 STAR_WARS_CHARACTERS = [
   {
     "name": "Luke Skywalker",
