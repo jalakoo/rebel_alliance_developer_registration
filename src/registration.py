@@ -8,7 +8,7 @@ from cymple import QueryBuilder
 # Functions
 @st.cache_data
 def programming_languages_list():
-    return list_from_csv("http://gist.githubusercontent.com/jalakoo/1199236143eeb6b85c8146db7ea2d925/raw/0178f18b3ce360017d84790b6bffaf18fd7c15d1/programming_languages.csv", "language")
+    return list_from_csv("https://gist.github.com/jalakoo/1199236143eeb6b85c8146db7ea2d925/raw", "language")
 
 @st.cache_data
 def friends_list():
@@ -23,7 +23,7 @@ def friends_list():
 
 @st.cache_data
 def systems():
-    return list_from_csv("https://gist.githubusercontent.com/jalakoo/780b2f20bbe67ec97583df768f484912/raw/726aa15c4c3c960003522331c33b52ea7416cfb5/famous_star_wars_systems.csv", "name")
+    return list_from_csv("https://gist.github.com/jalakoo/780b2f20bbe67ec97583df768f484912/raw", "name")
 
     # From local constants if added
     # systems = STAR_WARS_SYSTEMS
