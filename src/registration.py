@@ -79,9 +79,9 @@ def add_registrant(
 
     query = """
 MERGE (e:Event {name: $event})
-MERGE (a:Person {name: $name, email: $email})
+MERGE (a:Person {name: $name, email: $email, created_at: datetime($date)})
 MERGE (s:System {name: $system})
-MERGE (a)-[:ATTENDED {date: $date}]->(e)
+MERGE (a)-[:ATTENDED {date: datetime($date)}]->(e)
 MERGE (a)-[:FROM]->(s)
 """
     for idx, skill in enumerate(skills):
