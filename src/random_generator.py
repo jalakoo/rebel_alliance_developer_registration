@@ -104,7 +104,7 @@ def devs_file():
         if not devs:
             print(f'No devs to write to file')
             return None
-        print(f'Writing {len(devs)} devs to file')
+        # print(f'Writing {len(devs)} devs to file')
         data = StringIO()
         writer = csv.DictWriter(data, fieldnames=["call_sign", "email", "skills", "friends", "home_system"])
         writer.writeheader()

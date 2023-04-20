@@ -56,6 +56,60 @@ def setup_contraints():
 #     qb = QueryBuilder()
 #     query = qb.merge.node(labels="Event", ref_name="e")
 
+def registrant_exists(
+    email:str
+):
+    query = """
+    MATCH (n:Person {email: $email})
+    RETURN n
+    """
+    clear_params = {
+        "email" : email,
+    }
+    records = execute_query(query, clear_params)
+    # If any records returned then we have an existing user
+    # TODO: Does the query return at least one record with info if no matches?
+    return len(records) > 0
+
+def update_registrant(
+    event: str,
+    call_sign: str,
+    email: str,
+    skills: list,
+    friends: list,
+    home_system: str  
+):
+    # Remove existing relationships to topics(skills) and characters(friends)
+    #  and add new ones, in case the user has updated their list
+    query = """
+MATCH (n:Person {email: $email})
+OPTIONAL MATCH (n)-[k:KNOWS]-()
+OPTIONAL MATCH (n)-[f:FROM]-(s:System)
+DELETE k, f
+WITH n
+MATCH (c:Character) WHERE c.name in $friends
+MATCH (s:System) WHERE s.name = $home
+MATCH (t:Topic) WHERE t.name in $skills
+MERGE (n)-[:KNOWS]->(c)
+MERGE (n)-[:KNOWS]->(t)
+MERGE (n)-[:FROM]->(s)
+SET n.name = $name
+RETURN n
+    """
+    clear_params = {
+        "email" : email,
+        "event" : event,
+        "name" : call_sign,
+        "date" : datetime.now().isoformat(),
+        "home": home_system,
+        "friends" : friends,
+        "skills" : skills
+    }
+    execute_query(query, clear_params)
+    # TODO: Check if returned person data matches update info
+    #  If not, return false instead
+    return True
+
 # Using a single cypher query
 def add_registrant(
     event: str,
@@ -65,8 +119,6 @@ def add_registrant(
     friends: list,
     home_system: str
 ):
-    print(f'\nadd_registrant: event: {event}, call_sign: {call_sign}, email: {email}, skills: {skills}, friends: {len(friends)}')
-
     # First clear any pre-existing data
     clear_query = """
     MATCH (n:Person {email: $email})
@@ -103,114 +155,8 @@ MERGE (a)-[:FROM]->(s)
         'date': datetime.now().isoformat(),
         "system" : home_system
     }
-    print(f'add_registrant query: {query}')
     result = execute_query(query, params)
 
     if result is None:
         return False
     return len(result) > 0
-
-# Using independent cypher commands
-# This is the slowest method
-# def add_registrant(
-#     event: str,
-#     call_sign: str,
-#     email: str,
-#     skills: list,
-#     friends: list,
-#     home_system: str,
-#     auto_create: bool = False
-# ) -> bool:
-#     # This function works but is clunky. It should be refactored to use a single query or a bulk import option using APOC
-#     # print(f'\nadd_registrant: event: {event}, call_sign: {call_sign}, email: {email}, skills: {skills}, friends: {friends}')
-#     # Purge any pre-existing data
-
-#     # Add person
-#     query = """
-#         MERGE (e:Event {name: $event})
-#         MERGE (a:Person {name: $name, email: $email})
-#         MERGE (s:System {name: $system})
-#         MERGE (a)-[:ATTENDED {date: $date}]->(e)
-#         MERGE (a)-[:FROM]->(s)
-#         RETURN a
-#     """
-#     # TODO: Update with datetime (epoch?)
-#     parameters = {
-#         'event': event,
-#         'name': call_sign,
-#         'email': email,
-#         'date': datetime.now().isoformat(),
-#         'system': home_system
-#     }
-#     # # Run query
-#     result = execute_query(query, parameters)
-#     # print(f'New person result: {result}')
-
-#     # Add skills
-#     for skill in skills:
-#         # TODO: Make a single query
-#         # Add skill as topic, if not already present
-#         if auto_create:
-#             new_skill_query = """
-#                 MERGE (s:Topic {name: $skill})
-#                 """
-#             new_skill_params = {
-#                 'skill': skill
-#             }
-#             s_result = execute_query(new_skill_query, new_skill_params)
-#             # print(f'New skill result: {s_result}')
-
-#         # Connect skills/topics to person
-#         connect_skill_query = """    
-#             MATCH (a:Person {email: $email}),(t:Topic {name: $topic})
-#             MERGE (a)-[r:KNOWS]->(t)
-#             RETURN a,r,t
-#         """
-#         connect_skill_parameters = {
-#             'email': email,
-#             'topic': skill
-#         }
-#         c_result = execute_query(connect_skill_query, connect_skill_parameters)
-#         # print(f'Connect skill result: {c_result}')
-
-#         # Add associates
-#         for friend in friends:
-#             # Add friend as person, if not already present
-#             if auto_create:
-#                 new_friend_query = """
-#                     MERGE (f:Character {name: $friend})
-#                     """
-#                 new_friend_params = {
-#                     'friend': friend
-#                 }
-#                 f_result = execute_query(new_friend_query, new_friend_params)
-#                 # print(f'New friend result: {f_result}')
-
-#             # Connect friends to person
-#             connect_friend_query = """    
-#                 MATCH (a:Person {email: $email}),(f:Character {name: $friend})
-#                 MERGE (a)-[r:KNOWS]->(f)
-#                 RETURN a,r,f
-#             """
-#             connect_friend_parameters = {
-#                 'email': email,
-#                 'friend': friend
-#             }
-#             c_result = execute_query(connect_friend_query, connect_friend_parameters)
-#             # print(f'Connect friend result: {c_result}')
-
-#     # TODO: Error handling
-#     # TODO: Proper Confirmation
-#     check_query = """
-#         MATCH (p:Person {email: $email, name: $name})
-#         RETURN p
-#     """
-#     check_params = {
-#         'email': email,
-#         'name': call_sign
-#     }
-#     check_result = execute_query(check_query, check_params)
-#     if len(check_result) > 0:
-#         return True
-#     else:
-#         return False

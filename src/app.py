@@ -1,7 +1,7 @@
 import streamlit as st
 import random
 from call_signs import FIRST_WORD, SECOND_WORD
-from registration import add_registrant, programming_languages_list, friends_list, systems
+from registration import add_registrant, programming_languages_list, friends_list, systems, registrant_exists, update_registrant
 
 # Constants
 EVENT_NAME = st.secrets['EVENT_NAME']
@@ -28,6 +28,7 @@ with st.form(key='submission_form', clear_on_submit=True):
         call_sign = st.text_input('Call sign', placeholder="Red One", help='Unique call sign for the Rebel Alliance')
     with n2:
         email = st.text_input('Email', help='Email address for a unique call sign verfication')
+        email = email.lower()
 
     skills = st.multiselect("What programming languages do you know?", programming_languages_list())
 
@@ -39,15 +40,35 @@ with st.form(key='submission_form', clear_on_submit=True):
 
     submit = st.form_submit_button('Register')
     if submit:
-        st.info("Registration in progress...")
-        success = add_registrant(
-            event=EVENT_NAME, 
-            call_sign=call_sign, 
-            email=email, 
-            skills=skills, 
-            friends=friends,
-            home_system=home)
+        st.info("Checking for prior registration...")
+        exists = registrant_exists(
+            email=email
+        )
+        # Fine example of a gaggle of if-elses
+        if exists:
+            st.info("Updating registration...")
+        else:
+            st.info("Adding new registration...")
+        if exists:
+            success = update_registrant(
+                event=EVENT_NAME,
+                call_sign=call_sign,
+                email=email,
+                skills=skills,
+                friends=friends,
+                home_system=home
+            )
+            msg = "Registration successfully updated"
+        else:
+            success = add_registrant(
+                event=EVENT_NAME, 
+                call_sign=call_sign, 
+                email=email, 
+                skills=skills, 
+                friends=friends,
+                home_system=home)
+            msg = "Registration successful"
         if success:
-            st.success('Registration successful!')
+            st.success(msg)
         else:
             st.error('Registration failed. Please try again.')
