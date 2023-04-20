@@ -94,6 +94,7 @@ MERGE (n)-[:KNOWS]->(c)
 MERGE (n)-[:KNOWS]->(t)
 MERGE (n)-[:FROM]->(s)
 SET n.name = $name
+SET n.updated_at = datetime($date)
 RETURN n
     """
     clear_params = {
